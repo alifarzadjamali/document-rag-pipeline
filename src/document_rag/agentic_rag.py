@@ -11,8 +11,8 @@ from document_rag.rag import Answer, RAGPipeline, Retriever, format_context
 class AgenticRAGPipeline(RAGPipeline):
     """Retrieve, inspect relevance, and retry once with an LLM-rewritten query.
 
-    This is intentionally a bounded loop. It demonstrates the useful agentic idea—letting
-    the model choose a next action—without turning a small teaching project into a framework.
+    The loop is bounded. It lets the model choose the next action without turning this small
+    teaching project into a large framework.
     """
 
     def __init__(self, retriever: Retriever, llm: BaseChatModel) -> None:

@@ -5,16 +5,16 @@
 [![Chroma](https://img.shields.io/badge/vector_store-Chroma-FFDE2E)](https://www.trychroma.com/)
 [![Groq](https://img.shields.io/badge/inference-Groq-F55036)](https://groq.com/)
 
-A compact, production-shaped project for learning retrieval-augmented generation (RAG). It turns
-a folder of PDFs into a searchable local knowledge base, retrieves the passages most relevant to a
-question, and asks a Groq-hosted language model to answer with page-level citations.
+A small project for learning retrieval-augmented generation (RAG). It turns a folder of PDFs into a
+searchable local knowledge base, retrieves passages related to a question, and asks a Groq-hosted
+language model to answer with page-level citations.
 
-This repository is deliberately small. Each stage has one job, the command line mirrors the two
-real phases of a RAG system, and the agentic example adds one useful decision without burying the
-fundamentals beneath a large framework.
+The project stays small so each stage is easy to inspect. The command line mirrors the two phases of
+a RAG system, and the agentic example adds one decision without hiding the fundamentals inside a
+large framework.
 
-New to RAG? Start with the [mini lecture](docs/mini-lecture.md). It explains the ideas in plain
-English. Then return here and use this README as the practical workshop.
+**Read [MINI_LECTURE.md](MINI_LECTURE.md) first for a better understanding of RAG and the tools in
+this repository. Then use this README as the practical workshop.**
 
 ## How the pipeline works
 
@@ -46,20 +46,21 @@ The optional agentic path adds a bounded feedback loop:
 ```mermaid
 flowchart LR
     Q[Question] --> R[Retrieve]
-    R --> J{Context useful?}
+    R --> J{Context relevant?}
     J -- yes --> A[Answer]
     J -- no --> W[Rewrite search query]
     W --> R2[Retrieve once more]
     R2 --> A
 ```
 
-This is enough to teach query rewriting and model-directed control flow while remaining predictable:
-the pipeline can retry only once, so it cannot wander into an expensive or infinite loop.
+This teaches query rewriting and model-directed control flow while staying predictable. The pipeline
+can retry only once, so it cannot enter an expensive or infinite loop.
 
 ## Project structure
 
 ```text
 .
+├── MINI_LECTURE.md          # Concepts to read before the workshop
 ├── data/
 │   └── pdf/                  # Example PDFs; add your own here
 ├── src/document_rag/
@@ -105,8 +106,7 @@ uv run document-rag ingest --documents /path/to/pdfs
 ```
 
 The first ingestion downloads the embedding model. Later runs use the local model cache and the
-persisted database in `data/vector_store/`. The database is generated output and is intentionally
-not committed.
+persisted database in `data/vector_store/`. The database is generated output, so Git ignores it.
 
 ### Without uv
 
@@ -122,17 +122,17 @@ document-rag ingest
 
 ## Reading the code
 
-A useful order is `document_loader.py` → `vector_store.py` → `rag.py` → `agentic_rag.py` →
-`cli.py`. The boundaries are intentional:
+Read the code in this order: `document_loader.py` → `vector_store.py` → `rag.py` →
+`agentic_rag.py` → `cli.py`.
 
 - Document code knows nothing about databases or language models.
 - The vector-store module owns embeddings, persistence, and document IDs.
-- RAG classes depend on LangChain's small retriever and chat-model interfaces, which makes them easy
-  to test with fakes or swap to another provider.
+- RAG classes depend on LangChain's retriever and chat-model interfaces. They can be tested with
+  fakes or connected to another provider.
 - The CLI wires those pieces together and contains no retrieval logic.
 
-The baseline should be your default. Agentic retrieval costs extra model calls and latency, so it is
-most useful when real evaluation shows that users often phrase questions poorly.
+Use the baseline by default. Agentic retrieval adds model calls and latency. Add it when evaluation
+shows that unclear questions often lead to weak retrieval.
 
 ## Configuration
 

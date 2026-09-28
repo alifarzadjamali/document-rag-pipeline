@@ -1,17 +1,17 @@
 # Mini lecture: How this RAG project works
 
-This lesson explains the project before you run the code. You do not need to know RAG, LangChain,
-or vector databases yet.
+Read this lesson before running the code. You do not need prior knowledge of RAG, LangChain, or
+vector databases.
 
-When you finish this lesson, you should understand:
+By the end, you should understand:
 
-- why a normal language model is not enough for private documents;
+- why a language model alone is not enough for private documents;
 - what RAG does;
 - how a PDF becomes searchable;
 - what ChromaDB, LangChain, and Groq do in this project;
 - how the standard and agentic pipelines are different.
 
-After the lesson, use the main [README](../README.md) as a workshop and run the project yourself.
+After the lesson, use the main [README](README.md) as a workshop and run the project yourself.
 
 ## 1. The problem we want to solve
 
@@ -26,7 +26,7 @@ problems:
 2. It may give a general answer instead of using your document.
 3. It may invent information. This is often called a hallucination.
 
-We want the model to read the useful parts of our PDF before it answers. RAG helps us do this.
+We want the model to read relevant parts of our PDF before answering. RAG makes that possible.
 
 ## 2. What is RAG?
 
@@ -34,16 +34,17 @@ RAG means **Retrieval-Augmented Generation**.
 
 The name describes two jobs:
 
-- **Retrieval:** find useful text in our documents.
+- **Retrieval:** find relevant text in our documents.
 - **Generation:** give that text to a language model and ask it to write an answer.
 
-You can think of RAG as an open-book exam. The language model is the student. Before the student
-answers, we find the best pages in the book and place them on the desk.
+Think of RAG as an open-book exam. The language model is the student. Before it answers, we find the
+best pages in the book and place them on the desk.
 
-RAG does not train a new language model. It adds useful information to the prompt at question time.
+RAG does not train a new language model. It adds relevant information to the prompt when a question
+is asked.
 
 ```text
-question → find useful PDF text → give text to the model → grounded answer
+question → find relevant PDF text → give text to the model → grounded answer
 ```
 
 ## 3. RAG has two phases
@@ -69,8 +70,8 @@ flowchart LR
 First, LangChain's PDF loader reads the files one page at a time. We keep the PDF name and page
 number because we will need them for citations.
 
-Next, we split long pages into smaller pieces called **chunks**. Searching small, focused chunks is
-usually more useful than searching a whole book at once. A little text overlaps between neighboring
+Next, we split long pages into smaller pieces called **chunks**. Searching focused chunks works
+better than searching a whole book at once. A little text overlaps between neighboring
 chunks so an important sentence is less likely to be cut in half.
 
 Then we turn every chunk into an **embedding**. An embedding is a list of numbers that represents
@@ -111,7 +112,7 @@ the answer back to us.
 
 LangChain is a Python library for building applications that use language models and documents.
 
-In this project, it gives us common building blocks for:
+Here, it provides common building blocks for:
 
 - loading PDF pages;
 - splitting text;
@@ -120,8 +121,8 @@ In this project, it gives us common building blocks for:
 - talking to Groq;
 - representing prompts, messages, and documents.
 
-Why use it? Each provider has a different API. LangChain gives them a similar shape. This keeps the
-main pipeline readable and makes parts easier to replace or test.
+Each provider has a different API. LangChain gives them a similar shape, which keeps the code
+readable and lets us replace or test one part at a time.
 
 LangChain does not store our vectors and it is not the language model. It connects the pieces.
 
@@ -157,7 +158,7 @@ not belong to the same meaning space.
 Groq is the online service that runs our language model. It is the inference provider, not the
 vector database and not the RAG pipeline.
 
-This project uses Groq's `openai/gpt-oss-20b` model. LangChain sends the question and retrieved PDF
+We use Groq's `openai/gpt-oss-20b` model. LangChain sends the question and retrieved PDF
 chunks to Groq. Groq runs the model and returns generated text.
 
 The embedding step is local, but question answering is not fully private: the retrieved chunks are
@@ -175,8 +176,8 @@ It has a short, fixed workflow:
 4. Ask the Groq model for an answer.
 5. Show the answer and source pages.
 
-This is the best place to begin learning. The steps are easy to follow, the cost is predictable,
-and one question needs only one language-model call.
+Start here when learning the code. The steps are direct, the cost is predictable, and one question
+needs only one language-model call.
 
 ## 6. What makes the other pipeline agentic?
 
@@ -187,7 +188,7 @@ safe decision:
 
 ```mermaid
 flowchart TD
-    A[Search with original question] --> B{Is this context useful?}
+    A[Search with original question] --> B{Is this context relevant?}
     B -- Yes --> C[Answer the question]
     B -- No --> D[Rewrite the search query]
     D --> E[Search one more time]
@@ -205,11 +206,11 @@ That wording may be too vague for search. The model can rewrite it as something 
 The program searches once more with the clearer query. It still answers the student's original
 question.
 
-The loop is limited to one retry. This matters because unlimited agents can become slow, expensive,
-or difficult to understand. Agentic RAG also uses more model calls than standard RAG, so it should
-solve a real retrieval problem—not be added only because it sounds advanced.
+The loop is limited to one retry. Unlimited agents can become slow, expensive, or difficult to
+understand. Agentic RAG also uses more model calls than standard RAG, so it should solve a real
+retrieval problem. It should not be added only because it sounds advanced.
 
-## 7. What RAG improves—and what it does not
+## 7. What RAG improves and what it does not
 
 RAG gives the model relevant, current, or private information without retraining it. It also makes
 answers easier to inspect because we show source pages.
@@ -229,19 +230,19 @@ right chunks were retrieved, and verify whether the final answers are supported 
 
 Read the small modules in this order:
 
-1. `document_loader.py` — find PDFs, read pages, and create chunks.
-2. `vector_store.py` — create embeddings and save chunks in ChromaDB.
-3. `rag.py` — retrieve context and generate a grounded answer.
-4. `agentic_rag.py` — judge retrieval and optionally rewrite the query.
-5. `config.py` — keep settings in one place.
-6. `cli.py` — connect everything to the `ingest` and `ask` commands.
+1. `document_loader.py`: find PDFs, read pages, and create chunks.
+2. `vector_store.py`: create embeddings and save chunks in ChromaDB.
+3. `rag.py`: retrieve context and generate a grounded answer.
+4. `agentic_rag.py`: judge retrieval and optionally rewrite the query.
+5. `config.py`: keep settings in one place.
+6. `cli.py`: connect everything to the `ingest` and `ask` commands.
 
-Notice that each file has one main responsibility. This is useful beyond RAG: small boundaries make
-software easier to read, test, and change.
+Each file has one main responsibility. Small boundaries make software easier to read, test, and
+change.
 
 ## 9. Your workshop
 
-You now know the idea. Continue with the [README quick start](../README.md#quick-start) to:
+You now know the idea. Continue with the [README quick start](README.md#quick-start) to:
 
 1. install the exact dependencies;
 2. add a Groq API key;
