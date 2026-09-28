@@ -1,25 +1,43 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
-name = "trag"
-version = "0.1.0"
-description = "Add your description here"
+name = "document-rag-pipeline"
+version = "1.0.0"
+description = "A compact, production-shaped RAG teaching project using LangChain, Chroma, and Groq."
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.11,<3.14"
+license = { text = "MIT" }
+authors = [{ name = "Ali Jamali" }]
 dependencies = [
-    "chromadb>=1.5.4",
-    "faiss-cpu>=1.13.2",
-    "ipykernel>=7.2.0",
-    "langchain>=1.2.10",
-    "langchain-community>=0.4.1",
-    "langchain-core>=1.2.17",
-    "langchain-groq>=1.1.2",
-    "langchain-openai>=1.1.10",
-    "langchain-text-splitters>=1.1.1",
-    "langgraph>=1.0.10",
-    "numpy>=2.4.3",
-    "pymupdf>=1.27.1",
-    "pypdf>=6.8.0",
-    "python-dotenv>=1.2.2",
-    "scikit-learn>=1.8.0",
-    "sentence-transformers>=5.2.3",
-    "sentence-transformers>=5.2.3",
+    "chromadb>=1.5,<2",
+    "langchain>=1.2,<2",
+    "langchain-chroma>=1.1,<2",
+    "langchain-community>=0.4,<0.5",
+    "langchain-groq>=1.1,<2",
+    "langchain-huggingface>=1.2,<2",
+    "langchain-text-splitters>=1.1,<2",
+    "pypdf>=6.8,<7",
+    "python-dotenv>=1.2,<2",
+    "sentence-transformers>=5.2,<6",
 ]
+
+[project.scripts]
+document-rag = "document_rag.cli:main"
+
+[dependency-groups]
+dev = ["pytest>=9,<10", "ruff>=0.14,<0.15"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/document_rag"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]

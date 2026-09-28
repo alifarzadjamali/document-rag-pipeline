@@ -1,11 +1,17 @@
-# Python-generated files
+# Python
 __pycache__/
 *.py[oc]
+.pytest_cache/
+.ruff_cache/
+.coverage
 build/
 dist/
 wheels/
-*.egg-info
+*.egg-info/
 
-# Virtual environments
-.venv
+# Local environments and secrets
+.venv/
 .env
+
+# Generated vector database
+data/vector_store/
